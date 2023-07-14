@@ -1,6 +1,6 @@
 from PyQt6.QtWidgets import QApplication, QMainWindow, \
     QTableWidget, QTableWidgetItem, QDialog, QVBoxLayout, \
-    QLabel, QLineEdit, QPushButton
+    QLineEdit, QPushButton, QComboBox
 from PyQt6.QtGui import QAction
 import sys
 import sqlite3
@@ -57,20 +57,41 @@ class InsertDialog(QDialog):
 
         layout = QVBoxLayout()
 
-        name_label = QLineEdit()
-        name_label.setPlaceholderText("Name")
-        layout.addWidget(name_label)
+        # Add student name widget
+        self.student_name = QLineEdit()
+        self.student_name.setPlaceholderText("Name")
+        layout.addWidget(self.student_name)
 
+        # Add combo box of courses
+        self.course_name = QComboBox()
+        courses = ["Biology", "Math", "Astronomy", "Physics"]
+        self.course_name.addItems(courses)
+        layout.addWidget(self.course_name)
+
+        # Add mobile number widget
+        self.mobile_num = QLineEdit()
+        self.mobile_num.setPlaceholderText("Mobile")
+        layout.addWidget(self.mobile_num)
+
+        # Add a submit button
+        button = QPushButton("Register")
+        button.clicked.connect(self.add_student)
+        layout.addWidget(button)
+
+        # Display the Widgets in the window
         self.setLayout(layout)
 
-        """
-        date_label = QLabel("Date of Birth DD/MM/YYYY:")
-        self.date_birth_edit = QLineEdit()
-
-        calculate_btn = QPushButton("Calculate Age")
-        calculate_btn.clicked.connect(self.calculate_age)
-        self.output_label = QLabel("")
-        """
+    def add_student(self):
+        name = self.student_name.text()
+        course = self.course_name.itemText(self.course_name.currentIndex())
+        mobile = self.mobile_num.text()
+        connection = sqlite3.connect("database.db")
+        cursor = connection.cursor()
+        cursor.execute("INSERT INTO students (name, course, mobile) VALUES(?, ?, ?)", (name, course, mobile))
+        connection.commit()
+        cursor.close()
+        connection.close()
+        age_calculator.load_data()
 
 
 app = QApplication(sys.argv)
