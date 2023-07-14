@@ -1,5 +1,6 @@
 from PyQt6.QtWidgets import QApplication, QMainWindow, \
-    QTableWidget, QTableWidgetItem
+    QTableWidget, QTableWidgetItem, QDialog, QVBoxLayout, \
+    QLabel, QLineEdit, QPushButton
 from PyQt6.QtGui import QAction
 import sys
 import sqlite3
@@ -9,6 +10,8 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Student Management Systems")
+        self.setFixedWidth(400)
+        self.setFixedHeight(300)
 
         # Add main menu items
         file_menu = self.menuBar().addMenu("&File")
@@ -16,6 +19,7 @@ class MainWindow(QMainWindow):
 
         # Add submenu items
         add_student = QAction("Add Student", self)
+        add_student.triggered.connect(self.insert)
         file_menu.addAction(add_student)
 
         about_action = QAction("About", self)
@@ -38,6 +42,36 @@ class MainWindow(QMainWindow):
             for column_number, data in enumerate(row_data):
                 self.table.setItem(row_number, column_number, QTableWidgetItem(str(data)))
         connection.close()
+
+    def insert(self):
+        dialog = InsertDialog()
+        dialog.exec()
+
+
+class InsertDialog(QDialog):
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("Insert Student Data")
+        self.setFixedWidth(300)
+        self.setFixedHeight(300)
+
+        layout = QVBoxLayout()
+
+        name_label = QLineEdit()
+        name_label.setPlaceholderText("Name")
+        layout.addWidget(name_label)
+
+        self.setLayout(layout)
+
+        """
+        date_label = QLabel("Date of Birth DD/MM/YYYY:")
+        self.date_birth_edit = QLineEdit()
+
+        calculate_btn = QPushButton("Calculate Age")
+        calculate_btn.clicked.connect(self.calculate_age)
+        self.output_label = QLabel("")
+        """
+
 
 app = QApplication(sys.argv)
 age_calculator = MainWindow()
