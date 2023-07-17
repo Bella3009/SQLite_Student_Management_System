@@ -1,7 +1,7 @@
 from PyQt6.QtWidgets import QApplication, QMainWindow, \
     QTableWidget, QTableWidgetItem, QDialog, QVBoxLayout, \
-    QLineEdit, QPushButton, QComboBox
-from PyQt6.QtGui import QAction
+    QLineEdit, QPushButton, QComboBox, QToolBar
+from PyQt6.QtGui import QAction, QIcon
 import sys
 import sqlite3
 
@@ -10,15 +10,15 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Student Management Systems")
-        self.setFixedWidth(400)
-        self.setFixedHeight(300)
+        self.setFixedWidth(800)
+        self.setFixedHeight(600)
 
         # Add main menu items
         file_menu = self.menuBar().addMenu("&File")
         help_menu = self.menuBar().addMenu("&Help")
 
         # Add submenu items
-        add_student = QAction("Add Student", self)
+        add_student = QAction(QIcon("icons/add.png"), "Add Student", self)
         add_student.triggered.connect(self.insert)
         file_menu.addAction(add_student)
 
@@ -32,6 +32,15 @@ class MainWindow(QMainWindow):
         self.table.setHorizontalHeaderLabels(("ID", "Name", "Course", "Mobile"))
         self.table.verticalHeader().setVisible(False)
         self.setCentralWidget(self.table)
+
+        # Create Toolbar
+        toolbar = QToolBar()
+        toolbar.setMovable(True)
+        self.addToolBar(toolbar)
+
+        # Add toolbar elements
+        toolbar.addAction(add_student)
+
 
     def load_data(self):
         connection = sqlite3.connect("database.db")
