@@ -89,7 +89,59 @@ class MainWindow(QMainWindow):
 
 
 class EditDialog(QDialog):
-    pass
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("Edit Student Data")
+        self.setFixedWidth(300)
+        self.setFixedHeight(300)
+
+        layout = QVBoxLayout()
+
+        # Find the data selected in the main window
+        index = main_window.table.currentRow()
+        self.student_id = main_window.table.item(index, 0).text()
+        student_name = main_window.table.item(index, 1).text()  # row index, column index
+        course_name = main_window.table.item(index, 2).text()
+        mobile_num = main_window.table.item(index,3).text()
+
+        # Add student name widget
+        self.student_name = QLineEdit(student_name)
+        self.student_name.setPlaceholderText("Name")
+        layout.addWidget(self.student_name)
+
+        # Add combo box for courses
+        self.course_name = QComboBox()
+        courses = ["Biology", "Math", "Astronomy", "Physics"]
+        self.course_name.addItems(courses)
+        self.course_name.setCurrentText(course_name)
+        layout.addWidget(self.course_name)
+
+        # Add mobile number widget
+        self.mobile_num = QLineEdit(mobile_num)
+        self.mobile_num.setPlaceholderText("Mobile")
+        layout.addWidget(self.mobile_num)
+
+        # Add a submit button
+        button = QPushButton("Update")
+        button.clicked.connect(self.update_student)
+        layout.addWidget(button)
+
+        # Display the Widgets in the window
+        self.setLayout(layout)
+
+    def update_student(self):
+        connection = sqlite3.connect("database.db")
+        cursor = connection.cursor()
+        cursor.execute("UPDATE students SET name = ?, course = ?, mobile = ? WHERE id = ?",
+                       (self.student_name.text(),
+                        self.course_name.itemText(self.course_name.currentIndex()),
+                        self.mobile_num.text(),
+                        self.student_id))
+        connection.commit()
+        cursor.close()
+        connection.close()
+        # Refresh table
+        main_window.load_data()
 
 
 class DeleteDialog(QDialog):
@@ -139,11 +191,11 @@ class InsertDialog(QDialog):
         connection.commit()
         cursor.close()
         connection.close()
-        age_calculator.load_data()
+        main_window.load_data()
 
 
 app = QApplication(sys.argv)
-age_calculator = MainWindow()
-age_calculator.show()
-age_calculator.load_data()
+main_window = MainWindow()
+main_window.show()
+main_window.load_data()
 sys.exit(app.exec())
