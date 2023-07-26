@@ -8,6 +8,15 @@ import sys
 import sqlite3
 
 
+class DatabaseConnection:
+    def __init__(self, database_file="database.db"):
+        self.database_file = database_file
+
+    def connect(self):
+        connection = sqlite3.connect(self.database_file)
+        return connection
+
+
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -68,7 +77,7 @@ class MainWindow(QMainWindow):
         self.statusbar.addWidget(delete_btn)
 
     def load_data(self):
-        connection = sqlite3.connect("database.db")
+        connection = DatabaseConnection().connect()
         result = connection.execute("SELECT * FROM students")
         self.table.setRowCount(0)
         for row_number, row_data in enumerate(result):
@@ -103,6 +112,7 @@ class AboutDialog(QMessageBox):
         Feel free reuse and modify this app. 
         """
         self.setText(content)
+
 
 class EditDialog(QDialog):
     def __init__(self):
@@ -146,7 +156,7 @@ class EditDialog(QDialog):
         self.setLayout(layout)
 
     def update_student(self):
-        connection = sqlite3.connect("database.db")
+        connection = DatabaseConnection().connect()
         cursor = connection.cursor()
         cursor.execute("UPDATE students SET name = ?, course = ?, mobile = ? WHERE id = ?",
                        (self.student_name.text(),
@@ -186,7 +196,7 @@ class DeleteDialog(QDialog):
         index = main_window.table.currentRow()
         student_id = main_window.table.item(index, 0).text()
 
-        connection = sqlite3.connect("database.db")
+        connection = DatabaseConnection().connect()
         cursor = connection.cursor()
         cursor.execute("DELETE FROM students WHERE id = ?", (student_id,))
         # Without comma will not work because Python will think that is a value not a tuple
@@ -240,13 +250,15 @@ class InsertDialog(QDialog):
         name = self.student_name.text()
         course = self.course_name.itemText(self.course_name.currentIndex())
         mobile = self.mobile_num.text()
-        connection = sqlite3.connect("database.db")
+        connection = DatabaseConnection().connect()
         cursor = connection.cursor()
         cursor.execute("INSERT INTO students (name, course, mobile) VALUES(?, ?, ?)", (name, course, mobile))
         connection.commit()
         cursor.close()
         connection.close()
         main_window.load_data()
+
+        self.close()
 
 
 app = QApplication(sys.argv)
