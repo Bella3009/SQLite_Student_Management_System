@@ -27,6 +27,7 @@ class MainWindow(QMainWindow):
         about_action = QAction("About", self)
         help_menu.addAction(about_action)
         about_action.setMenuRole(QAction.MenuRole.NoRole)
+        about_action.triggered.connect(self.about)
 
         # Add the view of data in table form
         self.table = QTableWidget()
@@ -88,6 +89,20 @@ class MainWindow(QMainWindow):
         dialog = DeleteDialog()
         dialog.exec()
 
+    def about(self):
+        dialog = AboutDialog()
+        dialog.exec()
+
+
+class AboutDialog(QMessageBox):
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("About")
+        content = """
+        This app was created during the course "The Python Mega Course".
+        Feel free reuse and modify this app. 
+        """
+        self.setText(content)
 
 class EditDialog(QDialog):
     def __init__(self):
@@ -186,6 +201,7 @@ class DeleteDialog(QDialog):
         confirm_widget.setWindowTitle("Success")
         confirm_widget.setText("The record was deleted successfully")
         confirm_widget.exec()
+
 
 class InsertDialog(QDialog):
     def __init__(self):
